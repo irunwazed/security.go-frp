@@ -1,0 +1,37 @@
+# Konfigurasi client (frpc).
+server_addr = "127.0.0.1"
+server_port = 7000
+auth_token = "ganti-saya"
+
+# Expose SSH lokal (port 22) ke server di port 6000.
+# Akses dari luar:  ssh -p 6000 user@<server>
+# [[proxies]]
+# name       = "ssh"
+# type       = "tcp"
+# local_addr = "127.0.0.1"
+# local_port = 22
+# remote_port = 6000
+
+[[proxies]]
+name       = "web-tcp"
+type       = "tcp"
+local_addr = "127.0.0.1"
+local_port = 8000
+remote_port = 4321
+
+# Expose web lokal (port 8000) ke vhost http server.
+# Akses dari luar:  http://web.example.com:8080
+# [[proxies]]
+# name           = "web"
+# type           = "http"
+# local_addr     = "127.0.0.1"
+# local_port     = 8000
+# custom_domains = ["web.example.com"]
+
+# Contoh subdomain (butuh subdomain_host di server).
+# [[proxies]]
+# name       = "demo"
+# type       = "http"
+# local_addr = "127.0.0.1"
+# local_port = 3000
+# subdomain  = "demo"

@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go version *)",
+      "Bash(go mod *)",
+      "Bash(go build *)",
+      "Bash(go vet *)",
+      "Bash(./bin/frps.exe frps.toml)",
+      "Bash(./bin/frpc.exe frpc.toml)",
+      "Bash(kill %bihb746uh)",
+      "Bash(powershell -Command \"Get-Process frpc -ErrorAction SilentlyContinue | Select-Object Id, ProcessName\")",
+      "Bash(powershell -Command \"Stop-Process -Id 37348 -Force; Get-Process frpc,frps -ErrorAction SilentlyContinue | Select-Object Id, ProcessName\")",
+      "Bash(powershell -Command \"Test-NetConnection 127.0.0.1 -Port 7000 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded; Test-NetConnection 127.0.0.1 -Port 6000 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded; Test-NetConnection 127.0.0.1 -Port 8000 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded; Test-NetConnection 127.0.0.1 -Port 9000 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded\")",
+      "Bash(powershell -Command \"curl.exe -sv --max-time 5 http://127.0.0.1:8000/ 2>&1 | Select-Object -First 30\")",
+      "Bash(curl -sv --max-time 10 http://127.0.0.1:6000/)",
+      "Bash(powershell -Command \"Get-Process frpc,frps -ErrorAction SilentlyContinue | Select-Object Id, ProcessName; '---'; Test-NetConnection 127.0.0.1 -Port 7000 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded; Test-NetConnection 127.0.0.1 -Port 6000 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded; Test-NetConnection 127.0.0.1 -Port 8000 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded\")",
+      "Bash(powershell -Command \"Test-NetConnection 127.0.0.1 -Port 6000 -InformationLevel Quiet -WarningAction SilentlyContinue; Test-NetConnection 127.0.0.1 -Port 7000 -InformationLevel Quiet -WarningAction SilentlyContinue; Test-NetConnection 127.0.0.1 -Port 8000 -InformationLevel Quiet -WarningAction SilentlyContinue\")",
+      "Bash(curl.exe -s --max-time 5 -o /dev/null -w \"HTTP %{http_code} via %{remote_ip}:%{remote_port}, %{size_download} bytes, %{time_total}s\\\\n\" http://127.0.0.1:6000/ http://127.0.0.1:8000/)",
+      "PowerShell(try { \\(Invoke-WebRequest http://127.0.0.1:6000/ -TimeoutSec 5\\).StatusCode } catch { \"ERROR: $_\" })",
+      "PowerShell(try { \\(Invoke-WebRequest http://127.0.0.1:6000/ -TimeoutSec 5 -UseBasicParsing\\).StatusCode } catch { \"ERROR: $_\" })"
+    ]
+  }
+}
