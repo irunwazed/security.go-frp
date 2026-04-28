@@ -1,14 +1,14 @@
 # Konfigurasi server (frps).
 bind_addr = "0.0.0.0"
-bind_port = 6000
+bind_port = 7000
 
 # Port untuk traffic HTTP yang akan di-routing berdasar header Host.
 # Set 0 / hapus baris ini bila tidak butuh dukungan HTTP vhost.
-vhost_http_port = 9000
+vhost_http_port = 80
 
 # Token autentikasi. Kosongkan untuk menonaktifkan auth (tidak disarankan).
-auth_token = "ganti-saya"
+auth_token = "ganti-secret-saya"
 
 # Domain dasar untuk subdomain dinamis. Contoh: subdomain "demo" + host
 # "example.com" → demo.example.com akan terdaftar otomatis.
-# subdomain_host = "wazed.web.id"
+# subdomain_host = "domain.com"
