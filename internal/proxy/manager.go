@@ -72,7 +72,14 @@ func (m *Manager) Register(session WorkSession, proxies []protocol.ProxyEntry) e
 			if m.vhostListener == nil {
 				return fmt.Errorf("server tidak punya vhost_http_port; proxy http tidak bisa")
 			}
-			for _, h := range hostsForProxy(p, m.vhostHost) {
+			if p.Subdomain != "" && m.vhostHost == "" {
+				return fmt.Errorf("proxy %q pakai subdomain tapi server tidak set subdomain_host", p.Name)
+			}
+			hosts := hostsForProxy(p, m.vhostHost)
+			if len(hosts) == 0 {
+				return fmt.Errorf("proxy %q: tidak ada host valid (custom_domains/subdomain)", p.Name)
+			}
+			for _, h := range hosts {
 				if _, exists := m.httpBindings[h]; exists {
 					return fmt.Errorf("host %q sudah dipakai (proxy %q)", h, p.Name)
 				}

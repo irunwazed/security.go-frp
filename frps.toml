@@ -1,6 +1,6 @@
 # Konfigurasi server (frps).
 bind_addr = "0.0.0.0"
-bind_port = 7000
+bind_port = 6000
 
 # Port untuk traffic HTTP yang akan di-routing berdasar header Host.
 # Set 0 / hapus baris ini bila tidak butuh dukungan HTTP vhost.
