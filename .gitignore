@@ -1,5 +1,6 @@
 
 /bin
+frps.exe
 
 frpc.toml
 frps.toml

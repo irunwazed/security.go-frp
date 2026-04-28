@@ -75,6 +75,23 @@ func main() {
 	}
 }
 
+func logProxies(proxies []protocol.ProxyEntry, subdomainHost string) {
+	for _, p := range proxies {
+		switch p.Type {
+		case "tcp":
+			util.Infof("  proxy tcp  %q → remote_port :%d", p.Name, p.RemotePort)
+		case "http":
+			for _, d := range p.CustomDomains {
+				util.Infof("  proxy http %q → custom_domain %q", p.Name, d)
+			}
+			if p.Subdomain != "" {
+				full := p.Subdomain + "." + subdomainHost
+				util.Infof("  proxy http %q → subdomain %q", p.Name, full)
+			}
+		}
+	}
+}
+
 func handleControlConn(ctx context.Context, conn net.Conn, cfg *config.ServerConfig, mgr *proxy.Manager) {
 	util.Infof("client baru: %s", conn.RemoteAddr())
 
@@ -132,8 +149,9 @@ func handleControlConn(ctx context.Context, conn net.Conn, cfg *config.ServerCon
 		return
 	}
 
-	util.Infof("client %s login OK (run_id=%s, %d proxy)",
-		conn.RemoteAddr(), runID, len(login.Proxies))
+	util.Infof("client %s login OK | run_id=%s ver=%s proxies=%d",
+		conn.RemoteAddr(), runID, login.Version, len(login.Proxies))
+	logProxies(login.Proxies, cfg.SubdomainHost)
 
 	// Tunggu sesi tutup, baik karena client disconnect maupun shutdown.
 	select {
