@@ -26,7 +26,8 @@ tbody tr:hover td{background:#fafbff}
 .connect{background:#d1fae5;color:#065f46}
 .disconnect{background:#fee2e2;color:#991b1b}
 .process{background:#fef3c7;color:#92400e}
-.host{font-size:.8rem;color:#555;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.host a{font-size:.82rem;color:#2563eb;text-decoration:none;word-break:break-all}
+.host a:hover{text-decoration:underline}
 .empty{text-align:center;padding:2.5rem;color:#aaa}
 .pager{padding:.85rem 1.25rem;display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap}
 .pg{padding:.35rem .75rem;border:1px solid #ddd;border-radius:4px;background:#fff;text-decoration:none;color:#444;font-size:.82rem}
@@ -66,7 +67,7 @@ tbody tr:hover td{background:#fafbff}
           <td>{{.ID}}</td>
           <td><strong>{{.Name}}</strong></td>
           <td>{{.IP}}</td>
-          <td class="host" title="{{.Host}}">{{.Host}}</td>
+          <td class="host"><a href="http://{{.Host}}" target="_blank" rel="noopener">{{.Host}}</a></td>
           <td><span class="badge {{.Status}}">{{.Status}}</span></td>
           <td>{{.ConnectAt}}</td>
           <td>{{.DisconnectAt}}</td>
