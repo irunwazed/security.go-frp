@@ -8,9 +8,11 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/irunwazed/tunnel/internal/config"
+	"github.com/irunwazed/tunnel/internal/dashboard"
 	"github.com/irunwazed/tunnel/internal/mux"
 	"github.com/irunwazed/tunnel/internal/protocol"
 	"github.com/irunwazed/tunnel/internal/proxy"
@@ -42,10 +44,25 @@ func main() {
 			log.Fatalf("listen vhost %s:%d: %v", cfg.BindAddr, cfg.VhostHTTPPort, err)
 		}
 	} else {
-		util.Infof("vhost_http_port tidak diset; proxy http tidak akan bisa diregister")
+		util.Infof("vhost_http_port tidak diset; proxy http tidak tersedia")
 	}
 
 	mgr := proxy.NewManager(vhostLn, cfg.SubdomainHost)
+
+	// Dashboard
+	var dash *dashboard.Dashboard
+	if cfg.DashboardPort > 0 {
+		dash, err = dashboard.New(cfg.DashboardPort, cfg.DashboardDB)
+		if err != nil {
+			log.Fatalf("dashboard: %v", err)
+		}
+		defer dash.Close()
+		go func() {
+			if err := dash.Start(); err != nil {
+				util.Warnf("dashboard berhenti: %v", err)
+			}
+		}()
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -71,28 +88,15 @@ func main() {
 			util.Warnf("accept kontrol: %v", err)
 			continue
 		}
-		go handleControlConn(ctx, conn, cfg, mgr)
+		go handleControlConn(ctx, conn, cfg, mgr, dash)
 	}
 }
 
-func logProxies(proxies []protocol.ProxyEntry, subdomainHost string) {
-	for _, p := range proxies {
-		switch p.Type {
-		case "tcp":
-			util.Infof("  proxy tcp  %q → remote_port :%d", p.Name, p.RemotePort)
-		case "http":
-			for _, d := range p.CustomDomains {
-				util.Infof("  proxy http %q → custom_domain %q", p.Name, d)
-			}
-			if p.Subdomain != "" {
-				full := p.Subdomain + "." + subdomainHost
-				util.Infof("  proxy http %q → subdomain %q", p.Name, full)
-			}
-		}
-	}
-}
-
-func handleControlConn(ctx context.Context, conn net.Conn, cfg *config.ServerConfig, mgr *proxy.Manager) {
+func handleControlConn(
+	ctx context.Context, conn net.Conn,
+	cfg *config.ServerConfig, mgr *proxy.Manager,
+	dash *dashboard.Dashboard,
+) {
 	util.Infof("client baru: %s", conn.RemoteAddr())
 
 	sess, err := mux.Server(conn)
@@ -133,6 +137,18 @@ func handleControlConn(ctx context.Context, conn net.Conn, cfg *config.ServerCon
 
 	runID := util.RandomID()
 
+	clientName := login.ClientName
+	if clientName == "" {
+		clientName = runID
+	}
+	clientIP := extractIP(conn.RemoteAddr().String())
+	clientHost := buildHostSummary(login.Proxies, cfg.SubdomainHost)
+
+	// Status "process": auth OK, registrasi proxy sedang berjalan.
+	if dash != nil {
+		dash.ClientProcess(runID, clientName, clientIP, clientHost)
+	}
+
 	if err := mgr.Register(sess, login.Proxies); err != nil {
 		_ = protocol.WriteMsg(ctrlStream, protocol.TypeLoginResp,
 			&protocol.LoginResp{OK: false, Error: err.Error()})
@@ -149,16 +165,66 @@ func handleControlConn(ctx context.Context, conn net.Conn, cfg *config.ServerCon
 		return
 	}
 
+	// Status "connect": semua proxy aktif.
+	if dash != nil {
+		dash.ClientConnect(runID)
+	}
+
 	util.Infof("client %s login OK | run_id=%s ver=%s proxies=%d",
 		conn.RemoteAddr(), runID, login.Version, len(login.Proxies))
 	logProxies(login.Proxies, cfg.SubdomainHost)
 
-	// Tunggu sesi tutup, baik karena client disconnect maupun shutdown.
 	select {
 	case <-sess.CloseChan():
 	case <-ctx.Done():
 		_ = sess.Close()
 	}
+
+	// Status "disconnect": sesi berakhir.
+	if dash != nil {
+		dash.ClientDisconnect(runID)
+	}
 	mgr.Unregister(sess)
-	util.Infof("client %s disconnect", conn.RemoteAddr())
+	util.Infof("client %s disconnect (run_id=%s)", conn.RemoteAddr(), runID)
+}
+
+func logProxies(proxies []protocol.ProxyEntry, subdomainHost string) {
+	for _, p := range proxies {
+		switch p.Type {
+		case "tcp":
+			util.Infof("  proxy tcp  %q → remote_port :%d", p.Name, p.RemotePort)
+		case "http":
+			for _, d := range p.CustomDomains {
+				util.Infof("  proxy http %q → custom_domain %q", p.Name, d)
+			}
+			if p.Subdomain != "" {
+				util.Infof("  proxy http %q → subdomain %q", p.Name,
+					p.Subdomain+"."+subdomainHost)
+			}
+		}
+	}
+}
+
+func buildHostSummary(proxies []protocol.ProxyEntry, subdomainHost string) string {
+	var parts []string
+	for _, p := range proxies {
+		switch p.Type {
+		case "tcp":
+			parts = append(parts, fmt.Sprintf("tcp:%d", p.RemotePort))
+		case "http":
+			parts = append(parts, p.CustomDomains...)
+			if p.Subdomain != "" && subdomainHost != "" {
+				parts = append(parts, p.Subdomain+"."+subdomainHost)
+			}
+		}
+	}
+	return strings.Join(parts, ", ")
+}
+
+func extractIP(addr string) string {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return addr
+	}
+	return host
 }

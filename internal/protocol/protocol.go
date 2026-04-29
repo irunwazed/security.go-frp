@@ -28,9 +28,10 @@ const maxPayload = 1 << 20 // 1 MiB
 
 // Login dikirim client setelah membuka kontrol koneksi/stream.
 type Login struct {
-	Token   string        `json:"token"`
-	Proxies []ProxyEntry  `json:"proxies"`
-	Version string        `json:"version"`
+	Token      string       `json:"token"`
+	ClientName string       `json:"client_name"`
+	Proxies    []ProxyEntry `json:"proxies"`
+	Version    string       `json:"version"`
 }
 
 // ProxyEntry adalah satu definisi proxy yang dikirim ke server.

@@ -100,9 +100,10 @@ func runOnce(ctx context.Context, cfg *config.ClientConfig) error {
 		})
 	}
 	if err := protocol.WriteMsg(ctrl, protocol.TypeLogin, &protocol.Login{
-		Token:   cfg.AuthToken,
-		Proxies: entries,
-		Version: "0.1.0",
+		Token:      cfg.AuthToken,
+		ClientName: cfg.ClientName,
+		Proxies:    entries,
+		Version:    "0.1.0",
 	}); err != nil {
 		return fmt.Errorf("kirim login: %w", err)
 	}

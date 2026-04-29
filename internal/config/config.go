@@ -13,6 +13,8 @@ type ServerConfig struct {
 	VhostHTTPPort int    `toml:"vhost_http_port"`
 	AuthToken     string `toml:"auth_token"`
 	SubdomainHost string `toml:"subdomain_host"`
+	DashboardPort int    `toml:"dashboard_port"`
+	DashboardDB   string `toml:"dashboard_db"`
 }
 
 // ClientConfig adalah konfigurasi untuk frpc.
@@ -20,6 +22,7 @@ type ClientConfig struct {
 	ServerAddr string        `toml:"server_addr"`
 	ServerPort int           `toml:"server_port"`
 	AuthToken  string        `toml:"auth_token"`
+	ClientName string        `toml:"client_name"`
 	Proxies    []ProxyConfig `toml:"proxies"`
 }
 
@@ -37,8 +40,10 @@ type ProxyConfig struct {
 
 func LoadServer(path string) (*ServerConfig, error) {
 	cfg := &ServerConfig{
-		BindAddr: "0.0.0.0",
-		BindPort: 7000,
+		BindAddr:      "0.0.0.0",
+		BindPort:      7000,
+		DashboardPort: 7500,
+		DashboardDB:   "frps.db",
 	}
 	if _, err := toml.DecodeFile(path, cfg); err != nil {
 		return nil, fmt.Errorf("decode server config: %w", err)

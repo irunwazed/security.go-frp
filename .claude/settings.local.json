@@ -17,7 +17,8 @@
       "Bash(powershell -Command \"Test-NetConnection 127.0.0.1 -Port 6000 -InformationLevel Quiet -WarningAction SilentlyContinue; Test-NetConnection 127.0.0.1 -Port 7000 -InformationLevel Quiet -WarningAction SilentlyContinue; Test-NetConnection 127.0.0.1 -Port 8000 -InformationLevel Quiet -WarningAction SilentlyContinue\")",
       "Bash(curl.exe -s --max-time 5 -o /dev/null -w \"HTTP %{http_code} via %{remote_ip}:%{remote_port}, %{size_download} bytes, %{time_total}s\\\\n\" http://127.0.0.1:6000/ http://127.0.0.1:8000/)",
       "PowerShell(try { \\(Invoke-WebRequest http://127.0.0.1:6000/ -TimeoutSec 5\\).StatusCode } catch { \"ERROR: $_\" })",
-      "PowerShell(try { \\(Invoke-WebRequest http://127.0.0.1:6000/ -TimeoutSec 5 -UseBasicParsing\\).StatusCode } catch { \"ERROR: $_\" })"
+      "PowerShell(try { \\(Invoke-WebRequest http://127.0.0.1:6000/ -TimeoutSec 5 -UseBasicParsing\\).StatusCode } catch { \"ERROR: $_\" })",
+      "Bash(go get *)"
     ]
   }
 }

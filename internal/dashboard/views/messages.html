@@ -1,0 +1,91 @@
+{{define "messages.html"}}<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages — FRP Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f0f2f5;color:#222}
+nav{background:#1a1a2e;padding:0 1.5rem;display:flex;align-items:center;gap:2rem;height:54px}
+.brand{color:#fff;font-weight:700;font-size:1.05rem;text-decoration:none}
+nav a{color:#9ca3af;text-decoration:none;font-size:.9rem;padding:4px 0;border-bottom:2px solid transparent}
+nav a.active{color:#fff;border-bottom-color:#6c8ebf}
+.container{max-width:1300px;margin:1.5rem auto;padding:0 1rem}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden}
+.card-head{padding:.85rem 1.25rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+.card-head h2{font-size:.95rem;font-weight:600}
+.meta{font-size:.8rem;color:#888}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#f8f9fa;padding:.65rem 1rem;text-align:left;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:#666;white-space:nowrap}
+td{padding:.65rem 1rem;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbff}
+.id-col{font-family:monospace;font-size:.78rem;color:#999;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;background:#e0e7ff;color:#3730a3}
+.value-col{max-width:340px;word-break:break-word;line-height:1.5}
+.empty{text-align:center;padding:2.5rem;color:#aaa}
+.pager{padding:.85rem 1.25rem;display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap}
+.pg{padding:.35rem .75rem;border:1px solid #ddd;border-radius:4px;background:#fff;text-decoration:none;color:#444;font-size:.82rem}
+.pg:hover{background:#f3f4f6}
+.pg.cur{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.pg.off{color:#ccc;pointer-events:none}
+.api-box{margin-top:1rem;background:#1a1a2e;border-radius:8px;padding:1rem 1.25rem;color:#e5e7eb;font-size:.82rem;font-family:monospace;line-height:1.8}
+.api-box b{color:#6ee7b7}
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">⚡ FRP Dashboard</a>
+  <a href="/websites"{{if eq .ActivePage "websites"}} class="active"{{end}}>Websites</a>
+  <a href="/messages"{{if eq .ActivePage "messages"}} class="active"{{end}}>Messages</a>
+</nav>
+<div class="container">
+  <div class="card">
+    <div class="card-head">
+      <h2>Messages</h2>
+      <span class="meta">Total: {{.Pagination.Total}}</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>From</th>
+          <th>Name</th>
+          <th>Value</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Rows}}
+        <tr>
+          <td class="id-col" title="{{.ID}}">{{.ID}}</td>
+          <td>{{.Sender}}</td>
+          <td><span class="tag">{{.Name}}</span></td>
+          <td class="value-col">{{trunc .Value 200}}</td>
+          <td style="white-space:nowrap;font-size:.8rem;color:#666">{{.CreatedAt}}</td>
+        </tr>
+        {{else}}
+        <tr><td colspan="5" class="empty">Belum ada pesan masuk</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+    {{if gt .Pagination.TotalPages 1}}
+    <div class="pager">
+      <a href="?page={{sub .Pagination.Page 1}}" class="pg{{if not .Pagination.HasPrev}} off{{end}}">‹ Prev</a>
+      {{range .Pagination.Pages}}
+      <a href="?page={{.}}" class="pg{{if eq . $.Pagination.Page}} cur{{end}}">{{.}}</a>
+      {{end}}
+      <a href="?page={{add .Pagination.Page 1}}" class="pg{{if not .Pagination.HasNext}} off{{end}}">Next ›</a>
+    </div>
+    {{end}}
+  </div>
+
+  <div class="api-box">
+    <b>POST /api/message</b> &nbsp;—&nbsp; kirim pesan dari client manapun<br>
+    Content-Type: application/json<br>
+    {"from": "nama-client", "name": "alert", "value": "isi pesan"}
+  </div>
+</div>
+</body>
+</html>{{end}}
