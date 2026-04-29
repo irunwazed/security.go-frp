@@ -24,6 +24,9 @@ tbody tr:hover td{background:#fafbff}
 .id-col{font-family:monospace;font-size:.78rem;color:#999;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;background:#e0e7ff;color:#3730a3}
 .value-col{max-width:340px;word-break:break-word;line-height:1.5}
+.val-short{display:block}.val-full{display:none}
+.toggle-btn{margin-top:4px;display:inline-block;font-size:.75rem;color:#2563eb;cursor:pointer;background:none;border:none;padding:0}
+.toggle-btn:hover{text-decoration:underline}
 .empty{text-align:center;padding:2.5rem;color:#aaa}
 .pager{padding:.85rem 1.25rem;display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap}
 .pg{padding:.35rem .75rem;border:1px solid #ddd;border-radius:4px;background:#fff;text-decoration:none;color:#444;font-size:.82rem}
@@ -62,7 +65,13 @@ tbody tr:hover td{background:#fafbff}
           <td class="id-col" title="{{.ID}}">{{.ID}}</td>
           <td>{{.Sender}}</td>
           <td><span class="tag">{{.Name}}</span></td>
-          <td class="value-col">{{trunc .Value 200}}</td>
+          <td class="value-col">
+            <span class="val-short">{{trunc .Value 200}}</span>
+            <span class="val-full">{{.Value}}</span>
+            {{if gt (len .Value) 200}}
+            <button class="toggle-btn" onclick="toggleVal(this)">▼ Lihat selengkapnya</button>
+            {{end}}
+          </td>
           <td style="white-space:nowrap;font-size:.8rem;color:#666">{{.CreatedAt}}</td>
         </tr>
         {{else}}
@@ -87,5 +96,16 @@ tbody tr:hover td{background:#fafbff}
     {"from": "nama-client", "name": "alert", "value": "isi pesan"}
   </div>
 </div>
+<script>
+function toggleVal(btn){
+  var td=btn.parentElement;
+  var s=td.querySelector('.val-short');
+  var f=td.querySelector('.val-full');
+  var open=f.style.display==='block';
+  s.style.display=open?'block':'none';
+  f.style.display=open?'none':'block';
+  btn.textContent=open?'▼ Lihat selengkapnya':'▲ Sembunyikan';
+}
+</script>
 </body>
 </html>{{end}}
